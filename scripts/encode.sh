@@ -32,7 +32,7 @@ encrypt_file() {
     yaml)
       if sops -e --input-type yaml "$f" > "$enc_file"; then
         echo "✅ 加密成功: $enc_file"
-        rm "$f"
+        # rm "$f"
       else
         echo "❌ 加密失败: $f → 原文件保留"
       fi
@@ -40,7 +40,7 @@ encrypt_file() {
     json)
       if sops -e --input-type json "$f" > "$enc_file"; then
         echo "✅ 加密成功: $enc_file"
-        rm "$f"
+        # rm "$f"
       else
         echo "❌ 加密失败: $f → 原文件保留"
       fi
