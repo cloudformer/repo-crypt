@@ -1,0 +1,37 @@
+# creation_rules:
+#   # Terraform tfvars 文件
+#   - path_regex: "^environment/.*\\.tfvars$"
+#     key_groups:
+#       - age:
+#           - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+
+#   # YAML 和 JSON 配置文件
+#   - path_regex: "^environment/.*\\.(json|yaml)$"
+#     key_groups:
+#       - pgp:
+#           - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+#       - age:
+#           - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+# 文件名：sops_diff_rules.yaml
+# # sops.yaml
+creation_rules:
+  # JSON 文件保持原有加密规则
+  - path_regex: "^environment/.*\\.json$"
+    key_groups:
+      # - kms:
+      #     - "arn:aws:kms:us-east-1:123456789012:key/team-kms-key-id"  
+      - pgp:
+          - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+      - age:
+          - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+
+  # _diff.yaml 单独规则，只加密 secrets_diff.value
+  - path_regex: "^environment/.*_diff\\.yaml$"
+    encrypted_regex: '^value$'
+    key_groups:
+      # - kms:
+      #     - "arn:aws:kms:us-east-1:123456789012:key/team-kms-key-id"  
+      - pgp:
+          - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+      - age:
+          - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"

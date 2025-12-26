@@ -1,0 +1,12 @@
+.DS_Store
+
+# SOPS decrypted files
+environment/*.tfvars
+!environment/*.tfvars.enc
+environment/*.yaml
+!environment/*.yaml.enc
+environment/*.json
+!environment/*.json.enc
+
+
+
