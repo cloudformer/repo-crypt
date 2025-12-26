@@ -4,9 +4,11 @@
 environment/*.tfvars
 !environment/*.tfvars.enc
 environment/*.yaml
-!environment/*.yaml.enc
+!environment/*.enc
 environment/*.json
-!environment/*.json.enc
+environment/*.bak
+environment/*.enc.bak
+
 
 
 
