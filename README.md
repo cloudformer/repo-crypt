@@ -29,3 +29,26 @@ sops -e environment/prod.tfvars > environment/prod.tfvars.enc \
 sops -d environment/prod.tfvars.enc > environment/prod.tfvars
 sops -d environment/config.json.enc > environment/config.json
 sops -d environment/config.yaml.enc > environment/config.yaml
+
+# convert tfvars -> json
+hcl2json dev.tfvars > dev.json
+
+# test AWS env and permission
+CIPHERTEXT=$(aws kms encrypt \
+  --key-id alias/Staging-repo-encrypt-key \
+  --plaintext fileb://<(echo -n "test123") \
+  --profile "$ENVIRONMENT_ADMIN_ROLE" \
+  --output text --query CiphertextBlob)
+
+aws kms decrypt \
+  --ciphertext-blob fileb://<(echo "$CIPHERTEXT" | base64 --decode) \
+  --profile "$ENVIRONMENT_ADMIN_ROLE" \
+  --output text --query Plaintext | base64 --decode
+
+# test sops kms
+export AWS_PROFILE=ohstaging
+SOPS_NO_CONFIG=1 sops -e \
+  --kms "arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214" \
+  tmp.txt > tmp.txt.enc
+
+SOPS_NO_CONFIG=1 sops -d tmp.txt.enc > tmp_decrypted.txt

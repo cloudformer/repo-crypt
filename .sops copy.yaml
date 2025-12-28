@@ -1,0 +1,34 @@
+creation_rules:
+  # JSON 文件保持原有加密规则
+  - path_regex: "^environment/.*\\.json$"
+    key_groups:
+  #     # - kms_aliases:
+  #     #     - "alias/Staging-repo-encrypt-key"
+  #     #     - "alias/UAT-repo-encrypt-key"
+  #     #     - "alias/Production-repo-encrypt-key"
+      - kms:
+          - arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214
+  #           aws_profile: "$ENVIRONMENT_ADMIN_ROLE"
+  #     # - pgp:
+  #     #     - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+  #     # - age:
+  #     #     - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+
+  # - path_regex: "^environment/.*_diff\\.yaml$"
+  #   encrypted_regex: '^value$'
+  #   key_groups:
+  #     # - kms_aliases:
+  #     #     - "alias/Staging-repo-encrypt-key"
+  #     #     - "alias/UAT-repo-encrypt-key"
+  #     #     - "alias/Production-repo-encrypt-key"
+  #     - kms:
+  #         - arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214
+  #     # - pgp:
+  #     #     - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+  #     # - age:
+  #     #     - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+
+  # - path_regex: ".*"
+  #   kms:
+  #     - arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214
+  #       # aws_profile:ohstaging

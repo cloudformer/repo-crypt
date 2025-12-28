@@ -1,72 +1,77 @@
 #!/bin/bash
+set -euo pipefail
+
 DIR="environment"
+: "${ENVIRONMENT_ADMIN_ROLE:?ENVIRONMENT_ADMIN_ROLE is not set}"
+export AWS_PROFILE="$ENVIRONMENT_ADMIN_ROLE"
+shopt -s nullglob
 
-timestamp() {
-  date +"%Y%m%d%H%M%S"
-}
+timestamp() { date +"%Y%m%d%H%M%S"; }
+file_hash() { sha256sum "$1" | awk '{print $1}'; }
 
+# -----------------------------
+# 解密函数
+# -----------------------------
 decrypt_file() {
-  local enc_file="$1"
+  local enc="$1"
   local ext="$2"
-  local plain_file="${enc_file%.enc}"
+  local out="${enc%.enc}"
 
-  if [ -f "$plain_file" ]; then
-    # hash 对比，判断是否需要覆盖
-    local plain_hash enc_hash
-    plain_hash=$(sha256sum "$plain_file" | awk '{print $1}')
-    enc_hash=$(sops -d "$enc_file" $( [[ "$ext" == "yaml" ]] && echo "--input-type yaml --output-type yaml" || [[ "$ext" == "json" ]] && echo "--output-type json") 2>/dev/null | sha256sum | awk '{print $1}')
-    if [ "$plain_hash" == "$enc_hash" ]; then
-      echo "💡 $plain_file 已经是最新，跳过解密"
-      return
-    fi
+  echo "🔓 尝试解密: $enc → $out"
 
-    # 备份旧明文
-    cp "$plain_file" "${plain_file}.bak"
-  fi
-
-  echo "🔓 解密: $enc_file → $plain_file"
-
+  local sops_cmd
   case "$ext" in
-    yaml)
-      if sops -d --input-type yaml --output-type yaml "$enc_file" > "$plain_file"; then
-        echo "✅ 解密成功: $plain_file"
-      else
-        echo "❌ 解密失败: $enc_file → 明文未生成"
-        [ -f "$plain_file" ] && rm "$plain_file"
-      fi
-      ;;
-    json)
-      if sops -d --output-type json "$enc_file" > "$plain_file"; then
-        echo "✅ 解密成功: $plain_file"
-      else
-        echo "❌ 解密失败: $enc_file → 明文未生成"
-        [ -f "$plain_file" ] && rm "$plain_file"
-      fi
-      ;;
-    tfvars)
-      if sops -d "$enc_file" > "$plain_file"; then
-        echo "✅ 解密成功: $plain_file"
-      else
-        echo "❌ 解密失败: $enc_file → 明文未生成"
-        [ -f "$plain_file" ] && rm "$plain_file"
-      fi
-      ;;
+    json) sops_cmd=(sops -d --output-type json "$enc") ;;
+    yaml) sops_cmd=(sops -d --input-type yaml --output-type yaml "$enc") ;;
+    tfvars) sops_cmd=(sops -d "$enc") ;;
     *)
-      echo "⚠️ 跳过未知文件类型: $enc_file"
+      echo "⚠️ 未知文件类型: $enc"
+      return
       ;;
   esac
+
+  local tmp_out="${out}.tmp.$(timestamp)"
+  if "${sops_cmd[@]}" > "$tmp_out" 2>err.log; then
+    # 检查原文件是否存在并计算 hash
+    if [ -f "$out" ]; then
+      local hash_old hash_new
+      hash_old=$(file_hash "$out")
+      hash_new=$(file_hash "$tmp_out")
+      if [ "$hash_old" == "$hash_new" ]; then
+        printf "\e[32m➡️  %s hash unchanged, skipping\e[0m\n" "$out"
+        rm "$tmp_out"
+        return
+      else
+        mv "$out" "${out}.bak"
+        echo "🔹 原文件已备份为: ${out}.bak"
+      fi
+    fi
+    mv "$tmp_out" "$out"
+    echo "✅ 解密成功: $out"
+  else
+    echo "❌ 解密失败: $enc → 明文未生成"
+    echo "🔹 错误日志:"
+    cat err.log | sed 's/^/   /'
+    rm -f "$tmp_out"
+    echo "🔒 原文件未被覆盖，请检查权限或密钥"
+  fi
 }
 
+# -----------------------------
 # 遍历加密文件
-for enc_file in "$DIR"/*.enc; do
-  [ ! -f "$enc_file" ] && continue
-  base_ext="${enc_file##*.}"
-  case "$base_ext" in
-    enc)
-      # 获取原始扩展名
-      fname=$(basename "$enc_file" .enc)
-      ext="${fname##*.}"
-      decrypt_file "$enc_file" "$ext"
-      ;;
-  esac
-done
+# -----------------------------
+files=("$DIR"/*.json.enc "$DIR"/*.yaml.enc "$DIR"/*.tfvars.enc)
+
+if [ ${#files[@]} -eq 0 ]; then
+  echo "⚠️ 没有找到任何加密文件在 $DIR 下"
+else
+  echo "🔹 找到 ${#files[@]} 个加密文件，开始解密..."
+  for enc in "${files[@]}"; do
+    [ ! -f "$enc" ] && continue
+    filename=$(basename "$enc")
+    # 提取原始扩展名
+    ext="${filename%.enc}"
+    ext="${ext##*.}"
+    decrypt_file "$enc" "$ext"
+  done
+fi

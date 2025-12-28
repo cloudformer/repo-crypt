@@ -1,67 +1,38 @@
 #!/bin/bash
-DIR="environment"
+# encode.sh - 安全加密明文文件为 .enc
+# 永不覆盖原加密文件，生产安全版
 
-timestamp() {
-  date +"%Y%m%d%H%M%S"
-}
+set -euo pipefail
 
-encrypt_file() {
-  local f="$1"
-  local ext="$2"
-  local enc_file="${f}.enc"
+DIR="./environment"   # 明文文件目录，可修改
 
-  # 计算明文 hash
-  local plain_hash
-  plain_hash=$(sha256sum "$f" | awk '{print $1}')
+# 查找明文文件
+files=("$DIR"/*.json "$DIR"/*.yaml "$DIR"/*.yml)
 
-  # 如果加密文件存在，解密再算 hash
-  if [ -f "$enc_file" ]; then
-    local enc_hash
-    enc_hash=$(sops -d "${enc_file}" $( [[ "$ext" == "yaml" ]] && echo "--input-type yaml --output-type yaml" || [[ "$ext" == "json" ]] && echo "--output-type json") 2>/dev/null | sha256sum | awk '{print $1}')
-    if [ "$plain_hash" == "$enc_hash" ]; then
-      echo "💡 $f 未修改，跳过加密"
-      return
-    fi
+if [ ${#files[@]} -eq 0 ]; then
+  echo "⚠️ 没有找到任何明文文件在 $DIR 下"
+  exit 0
+fi
 
-    # 备份旧 .enc
-    cp "$enc_file" "${enc_file}.bak"
-  fi
+echo "🔹 找到 ${#files[@]} 个明文文件，开始加密..."
 
-  # 执行加密
-  case "$ext" in
-    yaml)
-      if sops -e --input-type yaml "$f" > "$enc_file"; then
-        echo "✅ 加密成功: $enc_file"
-        # rm "$f"
-      else
-        echo "❌ 加密失败: $f → 原文件保留"
-      fi
-      ;;
-    json)
-      if sops -e --input-type json "$f" > "$enc_file"; then
-        echo "✅ 加密成功: $enc_file"
-        # rm "$f"
-      else
-        echo "❌ 加密失败: $f → 原文件保留"
-      fi
-      ;;
-    tfvars)
-      if sops -e "$f" > "$enc_file"; then
-        echo "✅ 加密成功: $enc_file"
-        rm "$f"
-      else
-        echo "❌ 加密失败: $f → 原文件保留"
-      fi
-      ;;
-    *)
-      echo "⚠️ 跳过未知文件类型: $f"
-      ;;
-  esac
-}
-
-# 遍历文件
-for f in "$DIR"/*; do
+# 遍历明文文件
+for f in "${files[@]}"; do
   [ ! -f "$f" ] && continue
-  ext="${f##*.}"
-  encrypt_file "$f" "$ext"
+
+  enc="$f.enc"
+  tmp_enc="$enc.tmp"
+
+  echo "🔐 加密中: $f"
+
+  # 使用 sops 加密到临时文件
+  if sops -e "$f" > "$tmp_enc"; then
+    # 成功则覆盖 .enc
+    mv "$tmp_enc" "$enc"
+    echo "✅ 加密成功: $enc"
+  else
+    # 失败则删除临时文件，不影响原 enc
+    rm -f "$tmp_enc"
+    echo "❌ 加密失败: $f → 原文件保留"
+  fi
 done

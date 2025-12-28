@@ -2,12 +2,13 @@
 
 # SOPS decrypted files
 environment/*.tfvars
-!environment/*.tfvars.enc
+# !environment/*.tfvars.enc
+environment/*.enc.bak
 environment/*.yaml
-!environment/*.enc
+# !environment/*.enc
 environment/*.json
 environment/*.bak
-environment/*.enc.bak
+
 
 
 
