@@ -52,3 +52,5 @@ SOPS_NO_CONFIG=1 sops -e \
   tmp.txt > tmp.txt.enc
 
 SOPS_NO_CONFIG=1 sops -d tmp.txt.enc > tmp_decrypted.txt
+
+https://devops.datenkollektiv.de/using-sops-with-age-and-git-like-a-pro.html

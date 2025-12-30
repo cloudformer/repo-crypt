@@ -1,7 +1,7 @@
 creation_rules:
   - path_regex: "^environment/.*\\.json$"
     kms:
-      - arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214
+      - arn:aws:kms:ap-southeast-1:717279689582:key/beee437a-52e8-4906-bec6-1fd5b041b6ed
     pgp:
       - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
     age:
@@ -11,7 +11,7 @@ creation_rules:
     encrypted_regex: '^value$'
     # key_groups:
     kms:
-      - arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214
+      - arn:aws:kms:ap-southeast-1:717279689582:key/beee437a-52e8-4906-bec6-1fd5b041b6ed
     pgp:
       - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
     age:
@@ -19,7 +19,7 @@ creation_rules:
   
   - path_regex: ".*"
     kms:
-      - arn:aws:kms:ap-southeast-1:225989376155:key/1a09ab10-13eb-4325-8c09-f6be5da97214
+      - arn:aws:kms:ap-southeast-1:717279689582:key/beee437a-52e8-4906-bec6-1fd5b041b6ed
     pgp:
       - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
     age:
