@@ -4,13 +4,23 @@
 
 set -euo pipefail
 
-DIR="./environment"   # 明文文件目录，可修改
+# DIR="./environment"   # 明文文件目录，可修改
+DIRS=(
+  "./environment"   # ① 第一个目录
+  "./environment1"       # ② 第二个目录（按需修改/增加）
+)
 
 # 查找明文文件
-files=("$DIR"/*.json "$DIR"/*.yaml "$DIR"/*.yml)
+# files=("$DIR"/*.json "$DIR"/*.yaml "$DIR"/*.yml)
+files=()
+shopt -s nullglob
+for d in "${DIRS[@]}"; do
+  [ ! -d "$d" ] && continue
+  files+=("$d"/*.json "$d"/*.yaml "$d"/*.yml)
+done
 
 if [ ${#files[@]} -eq 0 ]; then
-  echo "⚠️ 没有找到任何明文文件在 $DIR 下"
+  echo "⚠️ 没有找到任何明文文件在目录: ${DIRS[*]} 下"
   exit 0
 fi
 

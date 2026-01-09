@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-DIR="environment"
+DIRS=("./environment"
+      "./environment1")
+
 : "${ENVIRONMENT_ADMIN_ROLE:?ENVIRONMENT_ADMIN_ROLE is not set}"
 export AWS_PROFILE="$ENVIRONMENT_ADMIN_ROLE"
 shopt -s nullglob
@@ -60,13 +62,18 @@ decrypt_file() {
 # -----------------------------
 # 遍历加密文件
 # -----------------------------
-files=("$DIR"/*.json.enc "$DIR"/*.yaml.enc "$DIR"/*.tfvars.enc)
+all_files=()
+for d in "${DIRS[@]}"; do
+  [ ! -d "$d" ] && continue
+  all_files+=("$d"/*.json.enc "$d"/*.yaml.enc "$d"/*.tfvars.enc)
+done
+# files=("$DIR"/*.json.enc "$DIR"/*.yaml.enc "$DIR"/*.tfvars.enc)
 
-if [ ${#files[@]} -eq 0 ]; then
-  echo "⚠️ 没有找到任何加密文件在 $DIR 下"
+if [ ${#all_files[@]} -eq 0 ]; then
+  echo "⚠️ 没有找到任何加密文件在目录: ${DIRS[*]}"
 else
-  echo "🔹 找到 ${#files[@]} 个加密文件，开始解密..."
-  for enc in "${files[@]}"; do
+  echo "🔹 找到 ${#all_files[@]} 个加密文件，开始解密..."
+  for enc in "${all_files[@]}"; do
     [ ! -f "$enc" ] && continue
     filename=$(basename "$enc")
     # 提取原始扩展名
