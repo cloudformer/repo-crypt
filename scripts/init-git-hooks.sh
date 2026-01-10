@@ -4,8 +4,8 @@
 # 配置变量：只需修改这里
 # -----------------------
 HOOKS_DIR=".git/hooks"          # Git hooks 目录
-ENCODE_SCRIPT="scripts/encode.sh"  # 加密脚本路径
-DECODE_SCRIPT="scripts/decode.sh"  # 解密脚本路径
+ENCODE_SCRIPT="scripts/encrypt.sh"  # 加密脚本路径
+DECODE_SCRIPT="scripts/decrypt.sh"  # 解密脚本路径
 
 # -----------------------
 # 检查 Git 仓库
