@@ -1,13 +1,19 @@
 .DS_Store
 
 # SOPS decrypted files
-environment/*.tfvars
 # !environment/*.tfvars.enc
+# !environment/*.enc
+environment/*.tfvars
 environment/*.enc.bak
 environment/*.yaml
-# !environment/*.enc
 environment/*.json
 environment/*.bak
+
+environment1/*.tfvars
+environment1/*.enc.bak
+environment1/*.yaml
+environment1/*.json
+environment1/*.bak
 
 
 
