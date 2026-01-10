@@ -1,0 +1,26 @@
+creation_rules:
+  - path_regex: "^environment/.*\\.json$"
+    kms:
+      - arn:aws:kms:ap-southeast-1:717279689582:key/beee437a-52e8-4906-bec6-1fd5b041b6ed
+    # pgp:
+    #   - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+    # age:
+    #   - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+
+  - path_regex: "^environment/.*_diff\\.yaml$"
+    encrypted_regex: '^value$'
+    # key_groups:
+    kms:
+      - arn:aws:kms:ap-southeast-1:717279689582:key/beee437a-52e8-4906-bec6-1fd5b041b6ed
+    # pgp:
+    #   - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+    # age:
+    #   - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
+  
+  - path_regex: ".*"
+    kms:
+      - arn:aws:kms:ap-southeast-1:717279689582:key/beee437a-52e8-4906-bec6-1fd5b041b6ed
+    # pgp:
+    #   - "99B3AD8954DB962FABC4B908A5BDB290559DA573"
+    # age:
+    #   - "age13txd5vpsk7tcezh0vmxrygdhcfknw27r5py4n3g5qfzkgjlmx3fs4uw059"
