@@ -1,0 +1,11 @@
+# 自动 SOPS 过滤 JSON/YAML
+
+# environment 目录及其子目录
+environment/**/*.json   filter=sops
+environment/**/*.yaml   filter=sops
+environment/**/*.yml    filter=sops
+
+# modules/secrets_manager/apply_diff 目录及其子目录
+modules/secrets_manager/apply_diff/**/*.json   filter=sops
+modules/secrets_manager/apply_diff/**/*.yaml   filter=sops
+modules/secrets_manager/apply_diff/**/*.yml    filter=sops
