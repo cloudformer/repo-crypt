@@ -1,4 +1,4 @@
-environment/*.enc merge=ours
-environment1/*.enc merge=ours
-modules/secrets_manager/**/_diff.yaml.enc merge=ours
+# environment/*.enc merge=ours
+# environment1/*.enc merge=ours
+# modules/secrets_manager/**/_diff.yaml.enc merge=ours
 
